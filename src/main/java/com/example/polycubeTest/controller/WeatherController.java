@@ -3,6 +3,10 @@ package com.example.polycubeTest.controller;
 import com.example.polycubeTest.dto.WeatherResponseDTO;
 import com.example.polycubeTest.entity.Region;
 import com.example.polycubeTest.entity.Weather;
+//import com.example.polycubeTest.service.MidTermWeatherService;
+import com.example.polycubeTest.service.MidTermWeatherService;
+import com.example.polycubeTest.service.ShortTermRegionService;
+import com.example.polycubeTest.service.ShortTermWeatherService;
 import com.example.polycubeTest.service.WeatherService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -36,9 +40,27 @@ public class WeatherController {
     @Autowired
     private WeatherService weatherService;
 
-    @GetMapping
+    @Autowired
+    private ShortTermWeatherService shortTermWeatherService;
+
+    @Autowired
+    private MidTermWeatherService midTermWeatherService;
+
+    @GetMapping("/ultrashort") //초단기 예보 api
     @Transactional
     public ResponseEntity<WeatherResponseDTO> getRegionWeather(@RequestParam Long regionId) {
         return weatherService.getRegionsWeather(regionId);
+    }
+
+    @GetMapping("/short") //단기 예보 api
+    @Transactional
+    public ResponseEntity<WeatherResponseDTO> getShortTermRegionWeather(@RequestParam Long regionId) {
+        return shortTermWeatherService.getShortTermRegionsWeather(regionId);
+    }
+
+    @GetMapping("/mid") //중기 예보 api
+    @Transactional
+    public ResponseEntity<Double> getMidTermRegionWeather(@RequestParam Long regionId) {
+        return midTermWeatherService.getMidTermRegionsWeather(regionId);
     }
 }

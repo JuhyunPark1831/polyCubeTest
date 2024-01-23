@@ -1,6 +1,8 @@
 package com.example.polycubeTest.controller;
 
+import com.example.polycubeTest.service.MidTermRegionService;
 import com.example.polycubeTest.service.RegionService;
+import com.example.polycubeTest.service.ShortTermRegionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +18,20 @@ public class RegionController {
     @Autowired
     private RegionService regionService;
 
+    @Autowired
+    private MidTermRegionService midTermRegionService;
+
+    @Autowired
+    private ShortTermRegionService shortTermRegionService;
+
+
+    //지역 데이터 데이터베이스 삽입
     @GetMapping("/load-data")
     @ResponseBody
     public String loadRegionData() {
-        return regionService.loadData();
+        shortTermRegionService.loadShortTermData(); //단기 예보
+        midTermRegionService.loadMidTermData(); //중기 예보
+        return regionService.loadData(); //초단기 예보
+
     }
 }
