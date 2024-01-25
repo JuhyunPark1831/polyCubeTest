@@ -2,7 +2,7 @@ package com.example.polycubeTest.service;
 
 
 import com.example.polycubeTest.dto.WeatherResponseDTO;
-import com.example.polycubeTest.entity.Region;
+import com.example.polycubeTest.entity.UltraShortTermRegion;
 import com.example.polycubeTest.entity.Weather;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -26,19 +25,19 @@ import java.time.format.DateTimeFormatter;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class WeatherService {
+public class UltraShortTermWeatherService {
 
     private final EntityManager em;
 
     @Value("${weatherApi.serviceKey}")
     private String serviceKey;
 
-    public ResponseEntity<WeatherResponseDTO> getRegionsWeather(Long regionId) {
+    public ResponseEntity<WeatherResponseDTO> getUltraShortTermRegionsWeather(Long regionId) {
 
         try {
             // 1. 날씨 정보를 요청한 지역 조회
-            Region region = em.find(Region.class, regionId);
-            if (region == null) {
+            UltraShortTermRegion ultraShortTermRegion = em.find(UltraShortTermRegion.class, regionId);
+            if (ultraShortTermRegion == null) {
                 log.error("Region not found with id: {}", regionId);
                 return ResponseEntity.notFound().build();
             }
@@ -52,28 +51,28 @@ public class WeatherService {
                 hour -= 1;
             }
             String hourStr = hour + "00"; // 정시 기준
-            String nx = Integer.toString(region.getNx());
-            String ny = Integer.toString(region.getNy());
+            String nx = Integer.toString(ultraShortTermRegion.getNx());
+            String ny = Integer.toString(ultraShortTermRegion.getNy());
             String currentChangeTime = now.format(DateTimeFormatter.ofPattern("yy.MM.dd ")) + hour;
 
             // 기준 시각 조회 자료가 이미 존재하고 있다면 API 요청 없이 기존 자료 그대로 넘김
-            Weather prevWeather = region.getWeather();
+            Weather prevWeather = ultraShortTermRegion.getWeather();
             if (prevWeather != null && prevWeather.getLastUpdateTime() != null) {
                 if (prevWeather.getLastUpdateTime().equals(currentChangeTime)) {
                     log.info("기존 자료를 재사용합니다");
                     WeatherResponseDTO dto = WeatherResponseDTO.builder()
-                            .weather(region.getWeather().toDto())
+                            .weather(ultraShortTermRegion.getWeather().toDto())
                             .message("OK")
                             .build();
                     return ResponseEntity.ok(dto);
                 }
             }
 
-            log.info("API 요청 발송 >>> 지역: {}, 연월일: {}, 시각: {}", region, yyyyMMdd, hourStr);
+            log.info("API 요청 발송 >>> 지역: {}, 연월일: {}, 시각: {}", ultraShortTermRegion, yyyyMMdd, hourStr);
 
             // 날씨 정보 초기화
-            Weather weather = initializeWeather(region, yyyyMMdd, hourStr, nx, ny, currentChangeTime);
-            region.updateRegionWeather(weather); // DB 업데이트
+            Weather weather = initializeUltraShortTermWeather(ultraShortTermRegion, yyyyMMdd, hourStr, nx, ny, currentChangeTime);
+            ultraShortTermRegion.updateRegionWeather(weather); // DB 업데이트
 
             WeatherResponseDTO dto = WeatherResponseDTO.builder()
                     .weather(weather.toDto())
@@ -93,8 +92,8 @@ public class WeatherService {
 
     // 이 메서드는 API를 통해 날씨 정보를 초기화합니다.
     //초단기
-    private Weather initializeWeather(Region region, String yyyyMMdd, String hourStr, String nx, String ny, String currentChangeTime)
-            throws IOException, UnsupportedEncodingException {
+    private Weather initializeUltraShortTermWeather(UltraShortTermRegion ultraShortTermRegion, String yyyyMMdd, String hourStr, String nx, String ny, String currentChangeTime)
+            throws IOException {
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst");
 
         urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + serviceKey);
@@ -157,7 +156,6 @@ public class WeatherService {
                     break;
             }
         }
-
         return new Weather(temp, rainAmount, humid, currentChangeTime);
     }
 }

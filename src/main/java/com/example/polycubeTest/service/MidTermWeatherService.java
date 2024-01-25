@@ -24,7 +24,6 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @RequiredArgsConstructor
 public class MidTermWeatherService {
-    //todo: midTer 컬럼 확인
 
     private final EntityManager em;
 
@@ -43,24 +42,30 @@ public class MidTermWeatherService {
 
             // 2. 요청 시각 조회
             LocalDateTime now = LocalDateTime.now();
-            String regId = midTermRegion.getRegionCode();
-            String yyyyMMdd = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String hourStr = "0600";
-            String tmFc = yyyyMMdd + hourStr;
-            tmFc = "202401230600";
+
+            int currentHour = now.getHour();
+            LocalDateTime closestDateTime;
+
+            if (currentHour >= 18) {
+                closestDateTime = now.withHour(18).withMinute(0).withSecond(0).withNano(0);
+            } else if (currentHour >= 6) {
+                closestDateTime = now.withHour(6).withMinute(0).withSecond(0).withNano(0);
+            } else {
+                closestDateTime = now.withHour(18).withMinute(0).withSecond(0).withNano(0).minusDays(1);
+            }
+
+            String tmFc = closestDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHH00"));
 
             // 기준 시각 조회 자료가 이미 존재하고 있다면 API 요청 없이 기존 자료 그대로 넘김
             double temperature = midTermRegion.getTemparature();
-            if (temperature != -500.0) {
-                    return ResponseEntity.ok(temperature);
-            }
+            if (temperature != -500.0) return ResponseEntity.ok(temperature);
 
-            log.info("API 요청 발송 >>> 지역: {}, 연월일: {}, 시각: {}", midTermRegion, yyyyMMdd, hourStr);
+            log.info("API 요청 발송 >>> 지역: {}, 연월일시각: {}", midTermRegion, tmFc);
 
             // 날씨 정보 초기화
+            String regId = midTermRegion.getRegionCode();
             Double temp = initializeMidTermWeather(regId, tmFc);
             midTermRegion.updateRegionWeather(temp); // DB 업데이트
-
 
             return ResponseEntity.ok(temp);
 
@@ -72,8 +77,8 @@ public class MidTermWeatherService {
 
     // 이 메서드는 API를 통해 날씨 정보를 초기화합니다.
     //초단기
-    private Double initializeMidTermWeather(String regId, String tmFc)
-            throws IOException, UnsupportedEncodingException {
+    public Double initializeMidTermWeather(String regId, String tmFc)
+            throws IOException {
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa");
 
         urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + serviceKey);
@@ -106,8 +111,6 @@ public class MidTermWeatherService {
         String data = sb.toString();
 
         // 응답 수신 완료, 응답 결과를 JSON 파싱
-
-        String regId1;
         double taMin3 = 0;
         double taMax3 = 0;
 
@@ -119,7 +122,6 @@ public class MidTermWeatherService {
 
         for (int i = 0; i < jArray.length(); i++) {
             JSONObject obj = jArray.getJSONObject(i);
-            regId1 = obj.getString("regId");
             taMin3 = obj.getDouble("taMin3");
             taMax3 = obj.getDouble("taMax3");
 

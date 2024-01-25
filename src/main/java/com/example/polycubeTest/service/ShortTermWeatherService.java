@@ -46,7 +46,6 @@ public class ShortTermWeatherService {
             // 2. 요청 시각 조회
             LocalDateTime now = LocalDateTime.now();
             String yyyyMMdd = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            yyyyMMdd = "20240123";
 
             // 날짜와 시간을 형식에 맞게 조정
             int currentHour = now.getHour();
@@ -59,7 +58,6 @@ public class ShortTermWeatherService {
                     break;
                 }
             }
-
             String hourStr = String.format("%02d00", closestHour); // 가장 최근 시간 기준
             String nx = Integer.toString(shortTermRegion.getNx());
             String ny = Integer.toString(shortTermRegion.getNy());
@@ -102,8 +100,8 @@ public class ShortTermWeatherService {
 
     // 이 메서드는 API를 통해 날씨 정보를 초기화합니다.
     // 초단기
-    private Weather initializeWeather(String yyyyMMdd, String hourStr, String nx, String ny, String currentChangeTime)
-            throws IOException, UnsupportedEncodingException {
+    public Weather initializeWeather(String yyyyMMdd, String hourStr, String nx, String ny, String currentChangeTime)
+            throws IOException {
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst");
 
         urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + URLEncoder.encode(serviceKey, "UTF-8"));
@@ -138,7 +136,6 @@ public class ShortTermWeatherService {
         String data = sb.toString();
 
         // 응답 수신 완료, 응답 결과를 JSON 파싱
-
         Double temp = null;
         Double humid = null;
         Double rainAmount = null;

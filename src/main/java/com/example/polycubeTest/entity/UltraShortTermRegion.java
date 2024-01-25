@@ -6,11 +6,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter //for Testing
 @Getter
 @Entity
 @NoArgsConstructor
-public class Region {
+public class UltraShortTermRegion {
 
     @Id
     @Column(name = "region_id")
@@ -30,7 +32,7 @@ public class Region {
     private Weather weather; // 지역 날씨 정보
 
     // 날씨 정보 제외하고 지역 생성
-    public Region(Long id, String parentRegion, String childRegion, int nx, int ny) {
+    public UltraShortTermRegion(Long id, String parentRegion, String childRegion, int nx, int ny) {
         this.id = id;
         this.parentRegion = parentRegion;
         this.childRegion = childRegion;

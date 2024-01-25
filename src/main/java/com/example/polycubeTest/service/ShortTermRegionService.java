@@ -1,8 +1,6 @@
 package com.example.polycubeTest.service;
 
-import com.example.polycubeTest.entity.Region;
 import com.example.polycubeTest.entity.ShortTermRegion;
-import com.example.polycubeTest.repository.RegionRepository;
 import com.example.polycubeTest.repository.ShortTermRegionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +38,7 @@ public class ShortTermRegionService {
         }
     }
 
-    private List<ShortTermRegion> readShortTermRegionsFromCsv(InputStream inputStream) throws IOException {
+    public List<ShortTermRegion> readShortTermRegionsFromCsv(InputStream inputStream) throws IOException {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
             return br.lines()
                     .skip(1) // Skip the header line
@@ -48,7 +46,7 @@ public class ShortTermRegionService {
                     .collect(Collectors.toList());
         }
     }
-    private ShortTermRegion mapToShortTermRegion(String line) {
+    public ShortTermRegion mapToShortTermRegion(String line) {
         String[] parts = line.split(",");
 
         Long id = Long.parseLong(parts[0]);

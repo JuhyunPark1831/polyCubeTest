@@ -1,7 +1,7 @@
 package com.example.polycubeTest.controller;
 
 import com.example.polycubeTest.service.MidTermRegionService;
-import com.example.polycubeTest.service.RegionService;
+import com.example.polycubeTest.service.UltraShortTermRegionService;
 import com.example.polycubeTest.service.ShortTermRegionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegionController {
 
     @Autowired
-    private RegionService regionService;
+    private UltraShortTermRegionService ultraShortTermRegionService;
 
     @Autowired
     private MidTermRegionService midTermRegionService;
@@ -31,7 +31,7 @@ public class RegionController {
     public String loadRegionData() {
         shortTermRegionService.loadShortTermData(); //단기 예보
         midTermRegionService.loadMidTermData(); //중기 예보
-        return regionService.loadData(); //초단기 예보
+        return ultraShortTermRegionService.loadUltraShortData(); //초단기 예보
 
     }
 }

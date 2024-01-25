@@ -1,9 +1,7 @@
 package com.example.polycubeTest.service;
 
 import com.example.polycubeTest.entity.MidTermRegion;
-import com.example.polycubeTest.entity.Region;
 import com.example.polycubeTest.repository.MidTermRegionRepository;
-import com.example.polycubeTest.repository.RegionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
